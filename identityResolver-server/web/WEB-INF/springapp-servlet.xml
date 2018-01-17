@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xmlns:mvc="http://www.springframework.org/schema/mvc"
+       xmlns:context="http://www.springframework.org/schema/context"
+       xsi:schemaLocation="
+       	http://www.springframework.org/schema/beans
+       	http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+		http://www.springframework.org/schema/mvc
+        http://www.springframework.org/schema/mvc/spring-mvc.xsd
+		http://www.springframework.org/schema/context 
+		http://www.springframework.org/schema/context/spring-context.xsd        
+       ">       
+       
+	
+	<!-- Enables the Spring MVC @Controller programming model -->
+	<mvc:annotation-driven/>
+	<context:component-scan base-package="springapp.*" />
+	<!-- 
+	<bean class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+	 -->
+
+
+ 	 <!-- the application context definition for the springapp DispatcherServlet -->
+	<!--
+	<bean id="aws" class="springapp.aws.DetectLabels"/>
+	<bean name="/hello" class="springapp.web.HelloController"/>
+	<bean name="/upload" class="springapp.web.UploadController"/>
+	 -->
+	<bean id="multipartResolver" class="org.springframework.web.multipart.commons.CommonsMultipartResolver">
+		 <!-- setting maximum upload size -->
+		<property name="maxUploadSize" value="10000000" />
+
+	</bean>	
+
+</beans>
