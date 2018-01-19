@@ -1,7 +1,7 @@
 package springapp.location.store.controller;
 
 import java.sql.Connection;
-import java.sql.DriverManager;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.Statement;
@@ -15,8 +15,10 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import springapp.database.DatabaseConnection;
+
 @RestController
-public class StoreController {
+public class StoreController extends DatabaseConnection {
     //TODO should break up store tables by region
     
     @RequestMapping(value = "/store", method = RequestMethod.PUT)
@@ -118,32 +120,7 @@ public class StoreController {
         }        
     }
     
-    public ArrayList<String> getUsersList(String id) throws Exception {
-        Class.forName("com.mysql.jdbc.Driver");
-        Connection connection = null;
-        PreparedStatement preparedStatement = null;      
-        try {
-            connection = getConnection();
-            
-            preparedStatement = connection.prepareStatement(
-                    "SELECT location FROM store"
-                    + " WHERE id = ?");
-            preparedStatement.setString(1, id);
-            
-            Object polygon = null;
-            ResultSet resultSet = preparedStatement.executeQuery();
-            if (resultSet.next()) {
-                polygon = resultSet.getObject(1);
-            }
-            
-            return polygon == null ? new ArrayList<String>() : getUsersList(connection, polygon); 
-            
-        } finally {
-            if (preparedStatement != null) {
-                preparedStatement.close();
-            }
-        } 
-    }
+    long min = 30;
     
     public ArrayList<String> getUsersList(Connection connection, Object polygon) throws Exception {
         Class.forName("com.mysql.jdbc.Driver");
@@ -153,8 +130,10 @@ public class StoreController {
         
             preparedStatement = connection.prepareStatement(
                     "SELECT userId FROM device"
-                    + " WHERE ST_CONTAINS(?, location)");
+                    + " WHERE ST_CONTAINS(?, location)"
+                    + " AND updateTime >= ?");
             preparedStatement.setObject(1, polygon);
+            preparedStatement.setDate(2, new Date(System.currentTimeMillis()-min*60000));             
             
             ArrayList<String> users = new ArrayList<String>();
             ResultSet resultSet = preparedStatement.executeQuery();            
@@ -215,12 +194,6 @@ public class StoreController {
         pointsParam.append(",").append(points[0]); //Close polygon
         
         return pointsParam.toString();
-    }
-    
-    private Connection getConnection() throws Exception {
-        return DriverManager
-                .getConnection("jdbc:mysql://localhost/lab?"
-                        + "user=root&password=anthony96");        
     }
     
     public static void main(String[] args) throws Exception {
